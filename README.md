@@ -26,6 +26,59 @@ ArgoCD GitOps repo for the homelab Kubernetes cluster — 3-node Talos Linux sta
 | `postgresql` | Git (kustomize) | `database` | Postgres 16 for stateful apps |
 | `vaultwarden` | Git (kustomize) | `vaultwarden` | Bitwarden-compatible password mgr |
 
+## Bootstrap from bare Talos
+
+Run these in order after `talosctl kubeconfig` is working.
+
+### 1. ArgoCD
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+Wait for all pods to be ready, then grab the initial password:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+### 2. MetalLB
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+```
+
+Wait for the `metallb-system` controller and speaker pods, then apply the IP pool and L2 advertisement from this repo:
+
+```bash
+kubectl apply -k ./metallb-config/
+```
+
+### 3. Longhorn
+
+Requires the `longhorn-system` namespace to run privileged pods — Talos enforces PodSecurity baseline by default:
+
+```bash
+kubectl create namespace longhorn-system
+kubectl label namespace longhorn-system pod-security.kubernetes.io/enforce=privileged
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.7.2/deploy/longhorn.yaml
+```
+
+> ⚠️ **Skip the label step and Longhorn will fail** with PodSecurity violations on Talos.
+
+### 4. Bootstrap ArgoCD apps
+
+Once all three are healthy, point ArgoCD at this repo:
+
+```bash
+kubectl apply -n argocd -k ./
+```
+
+Or click "NEW APP" in the ArgoCD UI and point it at the `apps/` Helm chart in this repo.
+
+---
+
 ## Architecture
 
 All apps are registered in [`apps/values.yaml`](./apps/values.yaml) as ArgoCD Application entries. The `apps/` Helm chart renders them into Application CRDs via a single template — add a line, ArgoCD picks it up.
