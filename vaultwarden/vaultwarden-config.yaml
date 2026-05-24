@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden-db
+  namespace: vaultwarden
+type: Opaque
+stringData:
+  password: "vaultwarden"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden-admin
+  namespace: vaultwarden
+type: Opaque
+stringData:
+  # Admin token for /admin panel (generate with: openssl rand -base64 48)
+  token: "CHANGE_ME_ADMIN_TOKEN"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden-config
+  namespace: vaultwarden
+data:
+  DOMAIN: "https://vault.theendboss101.com"
+  DATABASE_URL: "postgresql://vaultwarden:vaultwarden@postgresql.database.svc.cluster.local:5432/vaultwarden"
+  SIGNUPS_ALLOWED: "true"
+  INVITATIONS_ALLOWED: "false"
+  # Uncomment to enable WebSocket notifications
+  # WEBSOCKET_ENABLED: "true"

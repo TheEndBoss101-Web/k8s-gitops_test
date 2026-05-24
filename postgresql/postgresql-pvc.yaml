@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-data
+  namespace: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # Uses the default StorageClass (which will be Longhorn after install)
+  # Explicitly set if you have a named storage class:
+  # storageClassName: longhorn

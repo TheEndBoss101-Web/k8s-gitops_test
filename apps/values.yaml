@@ -11,8 +11,11 @@ applications:
   # ── Git-based apps (folders at repo root) ─────────────────────────────────
   - name: whoami
   - name: gitlab
+  - name: metallb-config
+  - name: postgresql
+  - name: vaultwarden
 
-  # ── External Helm chart (traefik official chart) ───────────────────────────
+  # ── External Helm charts ──────────────────────────────────────────────────
   - name: traefik
     namespace: argocd
     destination:
@@ -25,3 +28,29 @@ applications:
         - https://raw.githubusercontent.com/TheEndBoss101-Web/k8s-gitops_test/main/traefik/values.yaml
       values: |
         fullnameOverride: traefik
+
+  - name: longhorn
+    namespace: argocd
+    destination:
+      namespace: longhorn-system
+    repoURL: https://charts.longhorn.io
+    chart: longhorn
+    targetRevision: 1.8.1
+    helm:
+      valueFiles:
+        - https://raw.githubusercontent.com/TheEndBoss101-Web/k8s-gitops_test/main/longhorn/values.yaml
+      values: |
+        fullnameOverride: longhorn
+
+  - name: metallb
+    namespace: argocd
+    destination:
+      namespace: metallb-system
+    repoURL: https://metallb.github.io/metallb
+    chart: metallb
+    targetRevision: 0.14.9
+    helm:
+      valueFiles:
+        - https://raw.githubusercontent.com/TheEndBoss101-Web/k8s-gitops_test/main/metallb/values.yaml
+      values: |
+        fullnameOverride: metallb

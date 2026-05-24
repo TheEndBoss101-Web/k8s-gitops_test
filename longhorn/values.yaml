@@ -1,0 +1,45 @@
+# longhorn/values.yaml
+# Longhorn distributed block storage for K8s
+# https://longhorn.io/docs/latest/references/helm-chart/
+
+# Default settings for homelab (3-node Talos cluster)
+defaultSettings:
+  # 2 replicas = survives 1 node failure on a 3-node cluster
+  defaultReplicaCount: 2
+  # Allow volumes to be scheduled on nodes where they already have replicas
+  replicaAutoBalance: "least-effort"
+  # Use Longhorn as the default storage class for PVCs
+  # /var/lib/longhorn is writable on Talos — /var is a separate writable partition
+  defaultDataPath: /var/lib/longhorn
+  # Remove PVC data when PVC is deleted (safe for now, change if needed)
+  removingGC: true
+  # Automatically cleanup system snapshots
+  snapshotAutoCleanup: "true"
+
+# Longhorn manager settings
+longhornManager:
+  replicas: 2
+  serviceAnnotations: {}
+
+# Longhorn UI - useful for visual management
+longhornUI:
+  replicas: 1
+
+# CSI Driver settings
+csi:
+  attacherReplicaCount: 2
+  provisionerReplicaCount: 2
+  resizerReplicaCount: 2
+  snapshotterReplicaCount: 2
+
+# Don't enable the backing image manager by default
+# (only needed if using backing images for VMs)
+backingImageManager:
+  enabled: false
+
+# Persistence defaults for PVCs
+persistence:
+  defaultClass: true
+  defaultClassReplicaCount: 2
+  defaultFsType: ext4
+  reclaimPolicy: Retain

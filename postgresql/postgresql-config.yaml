@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-init
+  namespace: database
+data:
+  init.sql: |
+    CREATE USER vaultwarden WITH PASSWORD 'vaultwarden';
+    CREATE DATABASE vaultwarden OWNER vaultwarden;
+    GRANT ALL PRIVILEGES ON DATABASE vaultwarden TO vaultwarden;
+    GRANT ALL ON SCHEMA public TO vaultwarden;

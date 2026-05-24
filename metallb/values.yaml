@@ -1,0 +1,25 @@
+# metallb/values.yaml
+# MetalLB bare-metal load balancer
+# https://metallb.universe.tf/installation/
+
+# Controller configuration
+controller:
+  enabled: true
+  image:
+    tag: v0.14.9
+
+# Speaker configuration
+speaker:
+  enabled: true
+  image:
+    tag: v0.14.9
+  # Don't announce from control plane nodes (they're tainted)
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: "false"
+
+# Frr mode (use native BGP if needed, but L2 mode is simpler for homelab)
+frr:
+  enabled: false
+
+# Don't install the old configmap-based config (we use CRDs)
+configInCluster: false
